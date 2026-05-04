@@ -1,0 +1,49 @@
+# version removed (obsolete)
+
+services:
+  app:
+    build: .
+    container_name: adssbs-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - adssbs-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: adssbs-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - adssbs-network
+
+  db:
+    image: mysql:8.0
+    container_name: adssbs-db
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: adssbs
+      MYSQL_USER: adssbs
+      MYSQL_PASSWORD: password
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - adssbs-network
+
+networks:
+  adssbs-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+

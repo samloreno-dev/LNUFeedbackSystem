@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    #recaptcha-container {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+    }
+  </style>
+
+  <script>
+    function onRecaptchaSuccess(token) {
+      window.parent.postMessage(
+        JSON.stringify({
+          type: "recaptcha-success",
+          token: token
+        }),
+        "*"
+      );
+    }
+  </script>
+</head>
+<body>
+  <div id="recaptcha-container">
+    <div
+      class="g-recaptcha"
+      data-sitekey="6LdsjrssAAAAAEj9aCiBpQsaN3wHzsM0bxB_-Rb6"
+      data-callback="onRecaptchaSuccess">
+    </div>
+  </div>
+</body>
+</html>
