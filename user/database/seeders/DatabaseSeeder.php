@@ -18,6 +18,12 @@ class DatabaseSeeder extends Seeder
         foreach ($defaultOffices as $officeName) {
             Office::firstOrCreate(['name' => $officeName]);
         }
+
+        // Seed 1000 unique feedback rows (no duplicate 'message')
+        $this->call([
+            FeedbackSeeder::class,
+        ]);
     }
 }
+
 
