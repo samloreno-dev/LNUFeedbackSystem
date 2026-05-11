@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_colors.dart';
+
 import '../../../core/services/api_service.dart';
 import '../services/office_store.dart';
 import '../widgets/admin_layout.dart';
@@ -59,29 +59,25 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   Future<void> fetchDashboard() async {
     try {
-      final response = await ApiService.get('/dashboard-summary');
+      if (!mounted) return;
 
-      final data = json.decode(response.body);
+      // Use defensive parsing: guarantees we only accept Map-shaped JSON.
+      final data = await ApiService.getJson('/dashboard-summary');
 
-      if (response.statusCode == 200) {
-        setState(() {
-          dashboardData = data;
-          isLoading = false;
-          error = null;
-        });
-      } else {
-        setState(() {
-          error = "Failed to load dashboard";
-          isLoading = false;
-        });
-      }
+      setState(() {
+        dashboardData = data;
+        isLoading = false;
+        error = null;
+      });
     } catch (e) {
       setState(() {
         error = e.toString();
         isLoading = false;
+        dashboardData = null;
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,20 +86,23 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     final offices = officeStore.offices;
     final officeError = officeStore.error;
 
+    final dynamic officesRaw = data['offices'];
+
     final Map<String, dynamic> officeData =
-        Map<String, dynamic>.from(data['offices'] ?? {});
+        officesRaw is Map ? Map<String, dynamic>.from(officesRaw) : {};
 
-    final int totalFeedback =
-        int.tryParse(data['total_feedback']?.toString() ?? '0') ?? 0;
+    int safeInt(dynamic v) {
+      if (v is int) return v;
+      return int.tryParse(v?.toString() ?? '') ?? 0;
+    }
 
-    final int totalPositive =
-        int.tryParse(data['positive']?.toString() ?? '0') ?? 0;
 
-    final int totalNegative =
-        int.tryParse(data['negative']?.toString() ?? '0') ?? 0;
+    final int totalFeedback = safeInt(data['total_feedback']);
+    final int totalPositive = safeInt(data['positive']);
+    final int totalNegative = safeInt(data['negative']);
+    final int totalNeutral = safeInt(data['neutral']);
 
-    final int totalNeutral =
-        int.tryParse(data['neutral']?.toString() ?? '0') ?? 0;
+
 
     final String aiSummary =
         data['ai_summary'] ??
@@ -223,7 +222,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         final officeName =
                             office['name']?.toString() ?? 'Unknown';
 
-                        final data = officeData[officeName];
+                        final entry = officeData[officeName];
+                        final entryMap = entry is Map ? Map<String, dynamic>.from(entry) : <String, dynamic>{};
+
 
                         return Container(
                           margin: const EdgeInsets.only(bottom: 12),
@@ -234,7 +235,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                             border: Border.all(color: AppColors.border),
                           ),
                           child: Text(
-                            "$officeName — ${data?['total'] ?? 0} feedback",
+                            "$officeName — ${entryMap['total'] ?? 0} feedback",
+
                           ),
                         );
                       }).toList(),

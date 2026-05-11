@@ -14,10 +14,7 @@ class OfficeController extends Controller
             ->orderBy('name')
             ->get();
 
-        return response()->json([
-            'success' => true,
-            'data' => $offices,
-        ]);
+        return response()->json($offices); // ✅ FIX: remove wrapper
     }
 
     public function store(Request $request): JsonResponse
@@ -30,17 +27,11 @@ class OfficeController extends Controller
             'name' => $request->input('name'),
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Office created successfully',
-            'data' => $office,
-        ], 201);
+        return response()->json($office, 201); // ✅ FIX
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(Request $request, Office $office): JsonResponse
     {
-        $office = Office::findOrFail($id);
-
         $request->validate([
             'name' => 'required|string|max:255|unique:offices,name,' . $office->id,
         ]);
@@ -49,22 +40,15 @@ class OfficeController extends Controller
             'name' => $request->input('name'),
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Office updated successfully',
-            'data' => $office,
-        ]);
+        return response()->json($office); // ✅ FIX
     }
 
-    public function destroy(int $id): JsonResponse
+    public function destroy(Office $office): JsonResponse
     {
-        $office = Office::findOrFail($id);
         $office->delete();
 
         return response()->json([
-            'success' => true,
             'message' => 'Office deleted successfully',
         ]);
     }
 }
-

@@ -24,8 +24,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Offices CRUD
     Route::post('/offices', [OfficeController::class, 'store']);
-    Route::put('/offices/{id}', [OfficeController::class, 'update']);
-    Route::delete('/offices/{id}', [OfficeController::class, 'destroy']);
+
+    // ⚠️ FIX: use {office} instead of {id} (cleaner for Laravel model binding)
+    Route::put('/offices/{office}', [OfficeController::class, 'update']);
+    Route::delete('/offices/{office}', [OfficeController::class, 'destroy']);
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'index']);

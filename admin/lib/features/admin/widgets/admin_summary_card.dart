@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/constants/app_colors.dart';
 
 class AdminSummaryCard extends StatelessWidget {
@@ -17,14 +18,19 @@ class AdminSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 110,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 18,
+        vertical: 18,
+      ),
       decoration: BoxDecoration(
         color: AppColors.lnuWhite,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(
+          color: AppColors.border,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
@@ -36,7 +42,7 @@ class AdminSummaryCard extends StatelessWidget {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: AppColors.lnuNavy.withOpacity(0.08),
+              color: AppColors.lnuNavy.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(
@@ -45,7 +51,9 @@ class AdminSummaryCard extends StatelessWidget {
               size: 24,
             ),
           ),
+
           const SizedBox(width: 14),
+
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -61,7 +69,9 @@ class AdminSummaryCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+
                 const SizedBox(height: 6),
+
                 Text(
                   value,
                   style: const TextStyle(

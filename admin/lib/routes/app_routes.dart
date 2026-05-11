@@ -12,24 +12,28 @@ class AppRoutes {
   static const String adminSettings = "/admin-settings";
 
   static Map<String, WidgetBuilder> routes = {
+    /// LOGIN
     adminLogin: (context) => const AdminLoginPage(),
 
-    /// ✅ FIXED: receive email from login
+    /// DASHBOARD (SAFE ARG HANDLING)
     adminDashboard: (context) {
-      final email =
-          ModalRoute.of(context)!.settings.arguments as String;
+      final args = ModalRoute.of(context)?.settings.arguments;
+
+      final email = args is String ? args : "admin@system.com";
 
       return AdminDashboardPage(
         adminEmail: email,
       );
     },
 
+    /// MANAGE OFFICES
     manageOffices: (context) => const ManageOfficesPage(),
 
-    /// ⚠️ Settings CANNOT be const anymore
+    /// SETTINGS (SAFE ARG HANDLING)
     adminSettings: (context) {
-      final email =
-          ModalRoute.of(context)!.settings.arguments as String;
+      final args = ModalRoute.of(context)?.settings.arguments;
+
+      final email = args is String ? args : "admin@system.com";
 
       return AdminSettingsPage(
         adminEmail: email,

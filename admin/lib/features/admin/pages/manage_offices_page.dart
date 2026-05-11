@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/constants/app_colors.dart';
+
 import '../services/office_store.dart';
 import '../widgets/admin_layout.dart';
 
@@ -16,234 +16,121 @@ class _ManageOfficesPageState extends State<ManageOfficesPage> {
   @override
   void initState() {
     super.initState();
-    officeStore.addListener(_refresh);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      officeStore.fetchOffices();
+    });
   }
 
-  @override
-  void dispose() {
-    officeStore.removeListener(_refresh);
-    super.dispose();
+  Future<void> _handleAddOffice(String name) async {
+    await officeStore.addOffice(name);
+    await officeStore.fetchOffices();
   }
 
-  void _refresh() {
-    if (mounted) {
-      setState(() {});
-    }
+  Future<void> _handleDeleteOffice(String officeName) async {
+    await officeStore.deleteOffice(officeName);
+    await officeStore.fetchOffices();
   }
 
-  void _showAddOfficeModal() {
+  void _addDialog() {
     final controller = TextEditingController();
+    bool submitting = false;
 
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Add Office"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: "Office Name",
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final officeName = controller.text.trim();
-              if (officeName.isNotEmpty) {
-                final success = await officeStore.addOffice(officeName);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(success ? 'Office added successfully' : 'Failed to add office'),
-                      backgroundColor: success ? const Color(0xFF166534) : const Color(0xFFB91C1C),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.lnuNavy,
-            ),
-            child: const Text(
-              "Add",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      barrierDismissible: !submitting,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Add Office'),
+              content: TextField(
+                controller: controller,
+                decoration: const InputDecoration(hintText: 'Office name'),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: submitting
+                      ? null
+                      : () {
+                          Navigator.pop(dialogContext);
+                        },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: submitting
+                      ? null
+                      : () async {
+                          final name = controller.text.trim();
+                          if (name.isEmpty) return;
 
-  void _showEditOfficeModal(String currentOffice) {
-    final controller = TextEditingController(text: currentOffice);
+                          setState(() => submitting = true);
+                          await _handleAddOffice(name);
 
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Edit Office"),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: "Office Name",
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final newOfficeName = controller.text.trim();
-              if (newOfficeName.isNotEmpty) {
-                final success = await officeStore.updateOffice(currentOffice, newOfficeName);
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(success ? 'Office updated successfully' : 'Failed to update office'),
-                      backgroundColor: success ? const Color(0xFF166534) : const Color(0xFFB91C1C),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              }
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.lnuNavy,
-            ),
-            child: const Text(
-              "Save",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDeleteOfficeModal(String officeName) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Delete Office"),
-        content: Text("Are you sure you want to delete \"$officeName\"?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final success = await officeStore.deleteOffice(officeName);
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(success ? 'Office deleted successfully' : 'Failed to delete office'),
-                    backgroundColor: success ? const Color(0xFF166534) : const Color(0xFFB91C1C),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              }
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB91C1C),
-            ),
-            child: const Text(
-              "Delete",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        ],
-      ),
+                          if (dialogContext.mounted) {
+                            Navigator.pop(dialogContext);
+                          }
+                        },
+                  child: submitting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Add'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final offices = officeStore.offices;
-
     return AdminLayout(
-      pageTitle: "Manage Offices",
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      pageTitle: 'Manage Offices',
+      child: AnimatedBuilder(
+        animation: officeStore,
+        builder: (context, _) {
+          final offices = officeStore.offices;
+
+          return Column(
             children: [
-              ElevatedButton.icon(
-                onPressed: _showAddOfficeModal,
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  "Add Office",
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.lnuNavy,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 14,
+              ElevatedButton(
+                onPressed: _addDialog,
+                child: const Text('Add Office'),
+              ),
+              const SizedBox(height: 20),
+
+              if (officeStore.isLoading)
+                const CircularProgressIndicator(),
+
+              if (officeStore.error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    officeStore.error!,
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
-              ),
+
+              ...offices.map((o) {
+                final name = o['name'].toString();
+
+                return ListTile(
+                  title: Text(name),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _handleDeleteOffice(name),
+                  ),
+                );
+              }),
             ],
-          ),
-          const SizedBox(height: 20),
-          ...offices.map(
-            (office) {
-              final officeName = office['name'] as String;
-              return Container(
-                width: double.infinity,
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                  border: Border.all(color: AppColors.border),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        officeName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => _showEditOfficeModal(officeName),
-                      child: const Text("Edit"),
-                    ),
-                    TextButton(
-                      onPressed: () => _showDeleteOfficeModal(officeName),
-                      child: const Text(
-                        "Delete",
-                        style: TextStyle(color: Color(0xFFB91C1C)),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 }
+

@@ -23,16 +23,18 @@ class OfficeStore extends ChangeNotifier {
     try {
       final response = await ApiService.get('/offices');
       if (response.statusCode == 200) {
+        // Laravel OfficeController@index returns a raw JSON array
         final data = jsonDecode(response.body);
-        if (data['success'] == true) {
+        if (data is List) {
           _offices.clear();
-          final List<dynamic> officesData = data['data'];
-          for (var office in officesData) {
+          for (var office in data) {
             _offices.add({
               'id': office['id'],
               'name': office['name'],
             });
           }
+        } else {
+          _error = 'Invalid offices payload';
         }
       } else {
         _error = 'Failed to load offices';
@@ -55,11 +57,12 @@ class OfficeStore extends ChangeNotifier {
     try {
       final response = await ApiService.post('/offices', body: {'name': trimmed});
       if (response.statusCode == 201) {
+        // Laravel OfficeController@store returns the created office object
         final data = jsonDecode(response.body);
-        if (data['success'] == true) {
+        if (data is Map<String, dynamic>) {
           _offices.add({
-            'id': data['data']['id'],
-            'name': data['data']['name'],
+            'id': data['id'],
+            'name': data['name'],
           });
           notifyListeners();
           return true;
@@ -91,8 +94,9 @@ class OfficeStore extends ChangeNotifier {
     try {
       final response = await ApiService.put('/offices/$id', body: {'name': trimmed});
       if (response.statusCode == 200) {
+        // Laravel OfficeController@update returns the updated office object
         final data = jsonDecode(response.body);
-        if (data['success'] == true) {
+        if (data is Map<String, dynamic>) {
           _offices[index] = {
             'id': id,
             'name': trimmed,
