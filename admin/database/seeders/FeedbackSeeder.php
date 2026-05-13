@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class FeedbackSeeder extends Seeder
@@ -27,12 +26,6 @@ class FeedbackSeeder extends Seeder
             ->all();
         $existingSet = array_flip($existingMessages);
 
-        // Requirement: bypass AI; set analysis removed (set NULL).
-
-        // Helper data for actual feedback templates.
-        // Note: issue mapping is based on your example:
-        //   "the internet is slow" => "slow internet"
-        // and we follow the same rule for each category.
         $categories = [
             [
                 'issue' => 'slow internet',
@@ -178,19 +171,20 @@ class FeedbackSeeder extends Seeder
             $toInsert[] = [
                 'office_id' => $officeId,
                 'message' => $message,
-                'analysis' => null, // remove analysis content per requirement
+                // DB requires `analysis` to be non-null
+                'analysis' => json_encode([]),
                 'issue' => $cat['issue'],
                 'sentiment' => $sentiment,
                 'created_at' => $createdAt->format('Y-m-d H:i:s'),
                 'updated_at' => $updatedAt->format('Y-m-d H:i:s'),
             ];
 
+
             $existingSet[$message] = true;
             $i++;
         }
 
-        // Only insert columns that exist in the DB schema.
-        // Current `feedback` migration only contains: id, message, analysis, office_id, timestamps.
+        // Insert columns that exist in the DB schema.
         $rows = array_map(function ($row) {
             return [
                 'office_id' => $row['office_id'],
@@ -204,4 +198,3 @@ class FeedbackSeeder extends Seeder
         \App\Models\Feedback::query()->insert($rows);
     }
 }
-

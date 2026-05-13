@@ -1,4 +1,7 @@
-- [ ] Fix Flutter admin startup crash by updating admin/lib/main.dart (await ThemeService.loadTheme() before runApp + stop rebuilding MaterialApp during first frame)
-- [ ] Run/serve admin web and verify admin dashboard loads
-- [ ] If crash persists, capture next stack trace and continue debugging
+# TODO
+
+- [x] Update `admin/database/seeders/DatabaseSeeder.php` to seed default offices and call `FeedbackSeeder` (copy logic from `user/database/seeders/DatabaseSeeder.php`).
+- [x] Run artisan seeder and verify offices + feedback rows are inserted.
+
+
 

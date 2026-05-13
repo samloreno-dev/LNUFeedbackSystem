@@ -13,10 +13,17 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
         ]);
 
-        // NOTE: Do not seed default offices from the admin dashboard.
-        // Offices should come from the database (created/managed via /offices endpoints).
-        // Keeping database seeding limited to initial admin user setup.
+        // Seed default offices
+        $defaultOffices = ['Library', 'Dormitory', 'Registrar'];
+        foreach ($defaultOffices as $officeName) {
+            Office::firstOrCreate(['name' => $officeName]);
+        }
 
+        // Seed 1000 feedback rows
+        $this->call([
+            FeedbackSeeder::class,
+        ]);
     }
 }
+
 
