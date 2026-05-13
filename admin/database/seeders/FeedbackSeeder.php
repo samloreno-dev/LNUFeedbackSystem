@@ -172,7 +172,7 @@ class FeedbackSeeder extends Seeder
                 'office_id' => $officeId,
                 'message' => $message,
                 // DB requires `analysis` to be non-null
-                'analysis' => json_encode([]),
+
                 'issue' => $cat['issue'],
                 'sentiment' => $sentiment,
                 'created_at' => $createdAt->format('Y-m-d H:i:s'),
@@ -189,11 +189,13 @@ class FeedbackSeeder extends Seeder
             return [
                 'office_id' => $row['office_id'],
                 'message' => $row['message'],
-                'analysis' => $row['analysis'],
+                'issue' => $row['issue'],
+                'sentiment' => $row['sentiment'],
                 'created_at' => $row['created_at'],
                 'updated_at' => $row['updated_at'],
             ];
         }, $toInsert);
+
 
         \App\Models\Feedback::query()->insert($rows);
     }
