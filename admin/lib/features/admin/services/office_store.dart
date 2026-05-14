@@ -55,25 +55,47 @@ class OfficeStore extends ChangeNotifier {
     }
 
     try {
-      final response = await ApiService.post('/offices', body: {'name': trimmed});
-      if (response.statusCode == 201) {
-        // Laravel OfficeController@store returns the created office object
-        final data = jsonDecode(response.body);
-        if (data is Map<String, dynamic>) {
+      _error = null;
+
+      final response = await ApiService.post(
+        '/offices',
+        body: {'name': trimmed},
+      );
+
+      // Backend should return 201, but accept common variants.
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final decoded = jsonDecode(response.body);
+
+        // Laravel OfficeController@store returns the created office object.
+        if (decoded is Map<String, dynamic>) {
+          final id = decoded['id'];
+          final name = decoded['name'];
+
+          // Some proxies/frameworks might return numbers as int or string.
           _offices.add({
-            'id': data['id'],
-            'name': data['name'],
+            'id': id,
+            'name': name ?? trimmed,
           });
+
           notifyListeners();
           return true;
         }
+
+        // If we got a success code but non-JSON payload, still treat as failure.
+        _error = 'Invalid success payload: ${response.body}';
+        return false;
       }
+
+      // Capture backend response for debugging (422/401/404/500 etc.)
+      _error = 'Add failed: HTTP ${response.statusCode} - ${response.body}';
+      return false;
     } catch (e) {
       _error = 'Failed to add office: $e';
+      return false;
     }
-
-    return false;
   }
+
+
 
   Future<bool> updateOffice(String oldName, String newName) async {
     final trimmed = newName.trim();

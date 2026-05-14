@@ -233,7 +233,7 @@ class _SettingsContent extends StatelessWidget {
                   Switch(
                     value: isDarkMode,
                     onChanged: onDarkModeChanged,
-                    activeColor: AppColors.lnuWhite,
+                    activeThumbColor: AppColors.lnuWhite,
                     activeTrackColor: AppColors.lnuNavy,
                     inactiveThumbColor: const Color(0xFF8F8A99),
                     inactiveTrackColor: const Color(0xFFE7E2EC),

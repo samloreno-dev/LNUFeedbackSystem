@@ -1,14 +1,9 @@
-# TODO - LNUFeedbackSystem
+# TODO - Admin Dashboard & Offices UI (frontend folder)
 
-## Seeder fixes
-- [x] Fix `FeedbackSeeder` to insert `sentiment` into `feedback` rows (previously computed but not written).
-
-## Validation steps (run manually)
-- [x] `php artisan migrate:fresh --seed`
-- [x] Verify `sentiment` is populated in `feedback` table (sentiment null = 0)
-- [ ] Re-check admin dashboard sentiment counts after UI refresh.
-
-## AI summary persistence (next likely fix)
-- [ ] Check how admin dashboard reads/creates `ai_summary` and persist it (so it doesn’t “overtake” on new feedback).
-
-
+- [x] Create UI updates plan based on current `frontend/lib/features/admin/*` components (dashboard, manage offices, office detail, layout).
+- [ ] Port the modern design from `frontend/` into the running admin app (likely `admin/`), without breaking data/routing.
+- [ ] Update Admin dashboard UI (cards/sections responsive) in the running app.
+- [ ] Update Offices UI (Manage + Detail) in the running app.
+- [ ] Update sidebar/header styling in the running app.
+- [ ] Run `flutter analyze` and ensure builds compile.
+- [ ] Document which files were changed.

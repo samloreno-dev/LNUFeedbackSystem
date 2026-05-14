@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
+
 import '../widgets/feedback_form.dart';
 
 class FeedbackPage extends StatelessWidget {
@@ -32,7 +32,7 @@ class FeedbackPage extends StatelessWidget {
 
           /// DARK OVERLAY (better readability)
           Container(
-            color: Colors.black.withOpacity(0.45),
+color: Colors.black.withValues(alpha: 0.45),
           ),
 
           /// CONTENT

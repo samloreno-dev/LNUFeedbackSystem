@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
+
 import '../services/feedback_service.dart';
 import '../widgets/recaptcha_widget.dart';
 
@@ -78,7 +78,7 @@ class _FeedbackFormState extends State<FeedbackForm> {
       labelStyle: const TextStyle(color: lnuNavy),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: lnuNavy.withOpacity(0.5)),
+lnuNavy.withValues(alpha: 0.5)
       ),
       focusedBorder: const OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -423,7 +423,17 @@ class _FeedbackFormState extends State<FeedbackForm> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _isLoading ? null : submit,
+                  onPressed: _isLoading ? null : () async {
+                    // Prevent double submit: button becomes disabled immediately.
+                    if (_isLoading) return;
+                    setState(() => _isLoading = true);
+                    try {
+                      await submit();
+                    } finally {
+                      if (mounted) setState(() => _isLoading = false);
+                    }
+                  },
+
                     style: ElevatedButton.styleFrom(
                       backgroundColor: lnuNavy,
                       foregroundColor: Colors.white,

@@ -20,7 +20,7 @@ class ThankYouPage extends StatelessWidget {
             margin: const EdgeInsets.all(24),
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.95),
+color: Colors.white.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
